@@ -67,6 +67,28 @@
   .tag.recog{color:var(--code-key);border-color:var(--code-key)}
   .tag.skip{color:var(--muted);border-color:var(--line)}
 
+  /* foundations glossary */
+  .fnd-group{margin:0 0 22px}
+  .fnd-label{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  .fnd-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  .terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:8px}
+  .term{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px;box-shadow:var(--shadow)}
+  .term .k{font-family:var(--mono);font-weight:600;font-size:.88rem;color:var(--accent);display:block}
+  .term .d{font-size:.85rem;color:var(--muted);margin-top:3px;line-height:1.45}
+  .term .d b{color:var(--text);font-weight:600}
+  .apiflow{display:grid;gap:9px;margin:2px 0 10px}
+  .apistep{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+  .apistep .num{flex:none;width:26px;height:26px;border-radius:8px;background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent);font-family:var(--mono);font-weight:700;font-size:.8rem;display:grid;place-items:center}
+  .apistep p{margin:0;font-size:.9rem}
+  .apistep p b{font-family:var(--mono);color:var(--text)}
+  .apiflow .recap{font-family:var(--mono);font-size:.82rem;color:var(--accent);text-align:center;padding:4px}
+  .mcp{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:14px;padding:18px 20px;margin:2px 0 6px}
+  .mcp h4{font-family:var(--mono);margin:0 0 8px;font-size:1.05rem;color:var(--text)}
+  .mcp p{margin:0 0 9px;font-size:.92rem}
+  .mcp p:last-child{margin-bottom:0}
+  .mcp .tagline{font-family:var(--mono);font-size:.82rem;color:var(--accent);font-weight:600}
+  .mcp b{color:var(--text)}
+
   /* day modules */
   .days{display:grid;gap:16px}
   .day{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;scroll-margin-top:16px}
@@ -197,6 +219,116 @@
       <div class="lang"><h3>JavaScript / TypeScript <span class="fam">· browsers</span></h3><span class="tag recog">Recognize</span><p>Websites and dashboards. Recognize it; you won't master it here.</p></div>
       <div class="lang"><h3>SQL · HTML/CSS · JSON <span class="fam">· data, pages, formats</span></h3><span class="tag recog">Recognize</span><p>Query language, page structure/paint, and the format data travels in. All worth reading at a glance.</p></div>
       <div class="lang"><h3>Swift · Kotlin · C/C++ · Rust · Go · Java <span class="fam">· mobile &amp; systems</span></h3><span class="tag skip">Skip</span><p>Great languages, not your job. Know the names, move on.</p></div>
+    </div>
+  </section>
+
+  <section id="foundations">
+    <p class="eyebrow">Start here · vocabulary</p>
+    <h2>Foundations &amp; the everyday glossary</h2>
+    <p class="sub">The words and acronyms you'll hit daily — in code, in standups, in messages from your team. Skim it now, keep it open as a reference. A narrated version sits at the end of this section for the car.</p>
+
+    <div class="fnd-group">
+      <p class="fnd-label">Keywords inside the code</p>
+      <div class="terms">
+        <div class="term"><span class="k">def</span><span class="d"><b>Define a function</b> — a named recipe.</span></div>
+        <div class="term"><span class="k">return</span><span class="d">Hand a value <b>back out</b> of a function.</span></div>
+        <div class="term"><span class="k">import / from</span><span class="d">Pull in an <b>outside tool</b> (a library).</span></div>
+        <div class="term"><span class="k">if / elif / else</span><span class="d"><b>Make a decision</b> between paths.</span></div>
+        <div class="term"><span class="k">for</span><span class="d">Repeat <b>once per item</b> in a collection.</span></div>
+        <div class="term"><span class="k">while</span><span class="d">Repeat <b>as long as</b> a condition is true.</span></div>
+        <div class="term"><span class="k">try / except</span><span class="d">Attempt risky code, <b>catch the failure</b>.</span></div>
+        <div class="term"><span class="k">class</span><span class="d">A <b>blueprint</b> bundling data + functions.</span></div>
+        <div class="term"><span class="k">self</span><span class="d"><b>"This particular object"</b> (inside a class).</span></div>
+        <div class="term"><span class="k">None</span><span class="d">The <b>empty value</b> — "nothing".</span></div>
+        <div class="term"><span class="k">True / False</span><span class="d">The two <b>yes/no</b> values.</span></div>
+        <div class="term"><span class="k">and / or / not</span><span class="d"><b>Combine conditions</b>.</span></div>
+        <div class="term"><span class="k">in</span><span class="d">Is it <b>inside</b> this collection?</span></div>
+        <div class="term"><span class="k">with</span><span class="d">Safely <b>open &amp; close</b> a resource (a file).</span></div>
+        <div class="term"><span class="k">async / await</span><span class="d">Do <b>slow work without freezing</b> the rest.</span></div>
+        <div class="term"><span class="k">= vs ==</span><span class="d"><b>Assign</b> a value vs <b>compare</b> two values.</span></div>
+      </div>
+    </div>
+
+    <div class="fnd-group">
+      <p class="fnd-label">How an API actually works</p>
+      <p class="sub" style="margin-bottom:12px">An <b style="color:var(--text)">API</b> (application programming interface) is a <b style="color:var(--text)">waiter</b> between two programs — you don't walk into the kitchen, you give your order to the waiter. Every API call is these four steps:</p>
+      <div class="apiflow">
+        <div class="apistep"><span class="num">1</span><p>Your code sends a <b>request</b> to a specific address, called an <b>endpoint</b>.</p></div>
+        <div class="apistep"><span class="num">2</span><p>It includes a <b>key</b> — proof you're allowed, like showing a membership card.</p></div>
+        <div class="apistep"><span class="num">3</span><p>The service does the work and returns an <b>answer</b>, almost always as <b>JSON</b> (labelled data).</p></div>
+        <div class="apistep"><span class="num">4</span><p>Your code <b>reads</b> that answer and uses it.</p></div>
+        <div class="recap">request → key → response → read = every API call</div>
+      </div>
+    </div>
+
+    <div class="fnd-group">
+      <p class="fnd-label">What is MCP</p>
+      <div class="mcp">
+        <h4>MCP — Model Context Protocol</h4>
+        <p>An AI like Claude or Salmon is smart but starts with <b>no hands</b> — locked in a room with just its brain. <b>MCP is the standard set of hands.</b> It's the plug that lets an AI safely connect to your real tools and data: Gmail, Notion, Google Drive, your calendar.</p>
+        <p>When your system "uses the Notion MCP," it means the AI now has a safe, standard way to read and write your Notion. It's <b>how your AI team reaches into the real world</b> instead of just talking.</p>
+        <p class="tagline">Think: USB-C for AI — one universal plug for connecting AI to tools.</p>
+      </div>
+    </div>
+
+    <div class="fnd-group">
+      <p class="fnd-label">AI &amp; automation terms</p>
+      <div class="terms">
+        <div class="term"><span class="k">LLM</span><span class="d"><b>Large Language Model</b> — the AI brain (e.g. Claude).</span></div>
+        <div class="term"><span class="k">Model</span><span class="d">One <b>specific AI version</b> (Opus, Sonnet).</span></div>
+        <div class="term"><span class="k">Prompt</span><span class="d">The <b>instruction</b> you send the AI.</span></div>
+        <div class="term"><span class="k">Token</span><span class="d">Billing <b>unit of text</b> (~¾ of a word). More text = more cost.</span></div>
+        <div class="term"><span class="k">Context window</span><span class="d">How much text the AI can <b>hold at once</b>.</span></div>
+        <div class="term"><span class="k">Agent</span><span class="d">An AI that <b>uses tools &amp; acts</b> in a loop (Salmon, Claude Code).</span></div>
+        <div class="term"><span class="k">RAG</span><span class="d">Feeding the AI <b>relevant docs</b> to answer from.</span></div>
+        <div class="term"><span class="k">Hallucination</span><span class="d">The AI <b>confidently making something up</b>. Always validate.</span></div>
+      </div>
+    </div>
+
+    <div class="fnd-group">
+      <p class="fnd-label">Building &amp; shipping terms</p>
+      <div class="terms">
+        <div class="term"><span class="k">Git</span><span class="d"><b>Track-changes for code</b> — records every change.</span></div>
+        <div class="term"><span class="k">Repo</span><span class="d">A project's <b>code + full history</b>.</span></div>
+        <div class="term"><span class="k">Commit</span><span class="d">A <b>saved snapshot</b> of changes.</span></div>
+        <div class="term"><span class="k">Push / Pull</span><span class="d"><b>Send / get</b> changes to the shared copy.</span></div>
+        <div class="term"><span class="k">Branch / Merge</span><span class="d">A <b>parallel line of work</b> / combine it back in.</span></div>
+        <div class="term"><span class="k">PR (Pull Request)</span><span class="d">A <b>proposed change</b>, put up for review.</span></div>
+        <div class="term"><span class="k">GitHub</span><span class="d">Where <b>repos live online</b>.</span></div>
+        <div class="term"><span class="k">Deploy</span><span class="d"><b>Push code live</b> to real users.</span></div>
+        <div class="term"><span class="k">CI/CD</span><span class="d">Automated <b>test + deploy</b> pipeline.</span></div>
+        <div class="term"><span class="k">CLI</span><span class="d">Driving a tool by <b>typing commands</b> (Claude Code).</span></div>
+        <div class="term"><span class="k">SDK</span><span class="d">A <b>toolkit for building</b> on a service.</span></div>
+        <div class="term"><span class="k">Library / Package</span><span class="d"><b>Reusable code</b> you install (pip / npm).</span></div>
+      </div>
+    </div>
+
+    <div class="fnd-group">
+      <p class="fnd-label">Web, data &amp; security terms</p>
+      <div class="terms">
+        <div class="term"><span class="k">HTTP / HTTPS</span><span class="d">The web's <b>request language</b> (S = secure).</span></div>
+        <div class="term"><span class="k">Endpoint</span><span class="d">A <b>specific API address</b> you call.</span></div>
+        <div class="term"><span class="k">GET / POST</span><span class="d"><b>Read data</b> / <b>send data</b>.</span></div>
+        <div class="term"><span class="k">Status code</span><span class="d"><b>200</b> ok · <b>404</b> not found · <b>429</b> too fast · <b>500</b> server broke.</span></div>
+        <div class="term"><span class="k">JSON / YAML</span><span class="d">Formats for <b>data &amp; config</b>.</span></div>
+        <div class="term"><span class="k">Env var (.env)</span><span class="d">Where <b>secrets &amp; settings</b> live, outside code.</span></div>
+        <div class="term"><span class="k">Webhook</span><span class="d">An <b>auto-ping</b> when an event happens.</span></div>
+        <div class="term"><span class="k">OAuth</span><span class="d"><b>"Sign in with Google"</b> secure access — no password shared.</span></div>
+        <div class="term"><span class="k">Database</span><span class="d"><b>Organized storage</b> you query.</span></div>
+        <div class="term"><span class="k">Cache</span><span class="d">A <b>fast temporary copy</b> to avoid repeat work.</span></div>
+        <div class="term"><span class="k">Rate limit</span><span class="d"><b>Max requests</b> allowed per time window.</span></div>
+        <div class="term"><span class="k">Log</span><span class="d">The <b>recorded trail</b> of what happened. First stop when broken.</span></div>
+      </div>
+    </div>
+
+    <div class="fnd-group">
+      <div class="player">
+        <div class="player-head"><span class="player-ic">&#127911;</span><div>
+          <p class="player-title">Foundations tutor — narrated</p>
+          <p class="player-sub">~6 min · keywords, how APIs work, MCP, and the daily terms</p>
+        </div></div>
+        <audio controls preload="none" src="foundations.mp3">Audio: <a href="foundations.mp3">download</a>.</audio>
+      </div>
     </div>
   </section>
 
