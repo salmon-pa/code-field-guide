@@ -1,0 +1,695 @@
+<title>Reading Code in 7 Days — A Director's Field Guide</title>
+<style>
+  :root {
+    /* light theme (default) */
+    --ink: #16201f;
+    --paper: #edeef0;
+    --paper-2: #f6f7f6;
+    --card: #ffffff;
+    --line: #d3d8d6;
+    --muted: #5c6866;
+    --text: #1a2422;
+    --accent: #b9762a;       /* honey/amber, on light */
+    --accent-soft: #f3e6d3;
+    --code-key: #2f7d6e;     /* teal-green */
+    --code-str: #a35a2a;
+    --code-com: #8b968f;
+    --good: #2f8f5b;
+    --warn: #b7791f;
+    --crit: #c0492f;
+    --shadow: 0 1px 2px rgba(20,30,28,.06), 0 8px 24px rgba(20,30,28,.06);
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #0e1a1c;
+      --paper: #0e1a1c;
+      --paper-2: #12211f;
+      --card: #16242300;
+      --card: #172523;
+      --line: #263936;
+      --muted: #8ba09a;
+      --text: #dfe8e4;
+      --accent: #e0a43b;
+      --accent-soft: #2a2415;
+      --code-key: #5cc6ac;
+      --code-str: #e0a43b;
+      --code-com: #6c7f79;
+      --good: #52c07f;
+      --warn: #e0a43b;
+      --crit: #e7715a;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #0e1a1c; --paper: #0e1a1c; --paper-2: #12211f; --card: #172523;
+    --line: #263936; --muted: #8ba09a; --text: #dfe8e4; --accent: #e0a43b;
+    --accent-soft: #2a2415; --code-key: #5cc6ac; --code-str: #e0a43b; --code-com: #6c7f79;
+    --good: #52c07f; --warn: #e0a43b; --crit: #e7715a;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --ink: #16201f; --paper: #edeef0; --paper-2: #f6f7f6; --card: #ffffff;
+    --line: #d3d8d6; --muted: #5c6866; --text: #1a2422; --accent: #b9762a;
+    --accent-soft: #f3e6d3; --code-key: #2f7d6e; --code-str: #a35a2a; --code-com: #8b968f;
+    --good: #2f8f5b; --warn: #b7791f; --crit: #c0492f;
+    --shadow: 0 1px 2px rgba(20,30,28,.06), 0 8px 24px rgba(20,30,28,.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--text);
+    font-family: var(--sans); line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 22px 96px; }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+  /* ---------- hero ---------- */
+  header.hero {
+    padding: 68px 0 30px;
+    border-bottom: 1px solid var(--line);
+  }
+  .kicker {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .kicker::before {
+    content: ""; width: 26px; height: 1px; background: var(--accent); display: inline-block;
+  }
+  h1 {
+    font-family: var(--mono); font-weight: 600; letter-spacing: -.02em;
+    font-size: clamp(2rem, 1.2rem + 4vw, 3.4rem); line-height: 1.04;
+    margin: 0 0 18px; text-wrap: balance;
+  }
+  h1 .amp { color: var(--accent); }
+  .lede {
+    font-size: clamp(1.02rem, .98rem + .4vw, 1.18rem); color: var(--muted);
+    max-width: 58ch; margin: 0 0 8px;
+  }
+  .lede strong { color: var(--text); font-weight: 600; }
+
+  /* ---------- progress ---------- */
+  .tracker {
+    margin-top: 30px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  }
+  .tracker .count {
+    font-family: var(--mono); font-size: 1.5rem; font-weight: 600;
+    color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .tracker .count b { color: var(--accent); }
+  .bar {
+    flex: 1 1 220px; height: 10px; background: var(--paper-2);
+    border: 1px solid var(--line); border-radius: 99px; overflow: hidden; min-width: 180px;
+  }
+  .bar > i {
+    display: block; height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--code-key));
+    transition: width .5s cubic-bezier(.16,1,.3,1);
+  }
+  .tracker .note { font-size: .82rem; color: var(--muted); font-family: var(--mono); }
+
+  /* ---------- section scaffolding ---------- */
+  section { padding-top: 54px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 10px;
+  }
+  h2 {
+    font-family: var(--mono); font-weight: 600; letter-spacing: -.01em;
+    font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2rem); margin: 0 0 8px; text-wrap: balance;
+  }
+  .sub { color: var(--muted); margin: 0 0 24px; max-width: 60ch; }
+
+  /* ---------- the map ---------- */
+  .map { display: grid; gap: 12px; }
+  .lang {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; display: grid; grid-template-columns: 1fr auto; gap: 6px 16px;
+    box-shadow: var(--shadow); align-items: start;
+  }
+  .lang h3 {
+    font-family: var(--mono); font-size: 1rem; margin: 0; font-weight: 600;
+  }
+  .lang h3 .fam { color: var(--muted); font-weight: 400; }
+  .lang p { grid-column: 1 / -1; margin: 2px 0 0; font-size: .92rem; color: var(--muted); }
+  .lang p b { color: var(--text); font-weight: 600; }
+  .tag {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .04em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 99px; white-space: nowrap; align-self: center;
+    border: 1px solid transparent;
+  }
+  .tag.core { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .tag.recog { background: transparent; color: var(--code-key); border-color: var(--code-key); }
+  .tag.skip { background: transparent; color: var(--muted); border-color: var(--line); }
+
+  .mapnote {
+    margin-top: 16px; font-size: .9rem; color: var(--muted);
+    border-left: 2px solid var(--accent); padding: 4px 0 4px 16px;
+  }
+  .mapnote b { color: var(--text); }
+
+  /* ---------- day cards ---------- */
+  .days { display: grid; gap: 14px; }
+  .day {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 0; box-shadow: var(--shadow); overflow: hidden;
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  .day:hover { border-color: var(--accent); }
+  .day.done { border-color: var(--good); }
+  .dayhead {
+    display: flex; align-items: flex-start; gap: 14px; padding: 18px 20px 14px; cursor: pointer;
+  }
+  .checkbox {
+    flex: none; width: 26px; height: 26px; border-radius: 8px; margin-top: 2px;
+    border: 2px solid var(--line); background: var(--paper-2);
+    display: grid; place-items: center; transition: all .18s ease;
+  }
+  .day.done .checkbox { background: var(--good); border-color: var(--good); }
+  .checkbox svg { width: 15px; height: 15px; stroke: #fff; stroke-width: 3;
+    fill: none; opacity: 0; transform: scale(.5); transition: all .18s ease; }
+  .day.done .checkbox svg { opacity: 1; transform: scale(1); }
+  .dnum {
+    font-family: var(--mono); font-size: .72rem; color: var(--accent);
+    letter-spacing: .1em; text-transform: uppercase; margin: 0 0 3px;
+  }
+  .dtitle { font-family: var(--mono); font-weight: 600; font-size: 1.08rem; margin: 0; line-height: 1.25; }
+  .dtime { font-family: var(--mono); font-size: .72rem; color: var(--muted); white-space: nowrap; margin-top: 3px; }
+  .dbody { padding: 0 20px 20px 60px; display: grid; gap: 14px; }
+  .dbody p { margin: 0; font-size: .94rem; }
+  .dbody p.grasp { color: var(--muted); }
+  .dbody p.grasp b { color: var(--text); }
+
+  .do {
+    background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; font-size: .9rem;
+  }
+  .do .lbl {
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent); display: block; margin-bottom: 4px;
+  }
+  .drive {
+    font-size: .84rem; color: var(--muted); display: flex; gap: 9px; align-items: flex-start;
+  }
+  .drive .ic { flex: none; margin-top: 1px; }
+  .drive b { color: var(--text); font-weight: 600; }
+
+  pre {
+    margin: 0; background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 15px; overflow-x: auto;
+    font-family: var(--mono); font-size: .82rem; line-height: 1.7;
+  }
+  pre .k { color: var(--code-key); }
+  pre .s { color: var(--code-str); }
+  pre .c { color: var(--code-com); font-style: italic; }
+  pre .an { color: var(--accent); }
+
+  /* ---------- cheat sheet ---------- */
+  .cheat { display: grid; gap: 10px; }
+  .q {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 16px; box-shadow: var(--shadow); display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline;
+  }
+  .q .sev {
+    font-family: var(--mono); font-size: .64rem; letter-spacing: .08em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 6px; white-space: nowrap;
+  }
+  .q .sev.s1 { color: var(--crit); background: color-mix(in srgb, var(--crit) 12%, transparent); }
+  .q .sev.s2 { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
+  .q .sev.s3 { color: var(--code-key); background: color-mix(in srgb, var(--code-key) 12%, transparent); }
+  .q .txt { font-size: .93rem; }
+  .q .txt b { font-family: var(--mono); color: var(--text); }
+  .q .txt span { color: var(--muted); display: block; font-size: .84rem; margin-top: 2px; }
+
+  /* ---------- tutor prompts ---------- */
+  .prompts { display: grid; gap: 12px; }
+  .prompt {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .prompt .ph {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 12px 14px; border-bottom: 1px solid var(--line);
+  }
+  .prompt .ph span { font-family: var(--mono); font-size: .78rem; color: var(--muted); }
+  .copybtn {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .04em;
+    background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent);
+    padding: 5px 12px; border-radius: 7px; cursor: pointer; transition: all .15s ease; white-space: nowrap;
+  }
+  .copybtn:hover { background: var(--accent); color: var(--paper); }
+  .copybtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .prompt code {
+    display: block; padding: 13px 15px; font-family: var(--mono); font-size: .84rem;
+    color: var(--text); white-space: pre-wrap; line-height: 1.55;
+  }
+
+  /* ---------- driving box ---------- */
+  .audio {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px 22px; box-shadow: var(--shadow); display: grid; gap: 12px;
+  }
+  .audio ul { margin: 0; padding-left: 18px; display: grid; gap: 7px; font-size: .92rem; }
+  .audio ul b { font-family: var(--mono); color: var(--text); }
+  .audio .mp3note {
+    font-size: .86rem; color: var(--muted); border-left: 2px solid var(--code-key);
+    padding-left: 14px;
+  }
+  .audio .mp3note b { color: var(--text); }
+
+  footer {
+    margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: .78rem; color: var(--muted); text-align: center; line-height: 1.8;
+  }
+
+  .theme-toggle {
+    position: fixed; top: 16px; right: 16px; z-index: 20;
+    font-family: var(--mono); font-size: .72rem; background: var(--card);
+    border: 1px solid var(--line); color: var(--muted); border-radius: 8px;
+    padding: 6px 11px; cursor: pointer;
+  }
+  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+  @media (max-width: 560px) {
+    .dbody { padding-left: 20px; }
+    .lang { grid-template-columns: 1fr; }
+    .tag { justify-self: start; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">◐ theme</button>
+
+<div class="wrap">
+
+  <header class="hero">
+    <p class="kicker">For P'Oh · read &amp; direct, don't build</p>
+    <h1>You don't need to write code.<br>You need to <span class="amp">read</span> it.</h1>
+    <p class="lede">A one-week field guide to going from "code looks like noise" to
+      <strong>reading a script, spotting what's wrong, and giving your team feedback that lands.</strong>
+      No blank-page coding. Every day is 15–20 minutes of look-and-do.</p>
+
+    <div class="tracker" role="status" aria-live="polite">
+      <div class="count"><b id="doneN">0</b>/7 days</div>
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="note" id="trackNote">tap a day to check it off →</div>
+    </div>
+  </header>
+
+  <!-- ============ THE MAP ============ -->
+  <section id="map">
+    <p class="eyebrow">Part 1 · Orientation</p>
+    <h2>The map: how many languages, and which does what</h2>
+    <p class="sub">There are 700+ programming languages. Only about ten run the professional world —
+      and only <b style="color:var(--text)">two</b> matter for you. Here's the whole landscape on one screen,
+      so you know what you're skipping and why.</p>
+
+    <div class="map">
+      <div class="lang">
+        <h3>Python <span class="fam">· scripting · automation · AI</span></h3>
+        <span class="tag core">Your core</span>
+        <p>Automations, AI &amp; LLM orchestration, data pulls, scrapers, backends. <b>Salmon and most of your automation scripts are Python.</b> This is the language you learn to read.</p>
+      </div>
+      <div class="lang">
+        <h3>JavaScript / TypeScript <span class="fam">· web &amp; dashboards</span></h3>
+        <span class="tag recog">Recognize</span>
+        <p>Everything that runs in a browser: websites, buttons, <b>Mission Control and your dashboards</b>. TypeScript is JavaScript with safety rails. You learn to recognize it, not master it.</p>
+      </div>
+      <div class="lang">
+        <h3>SQL <span class="fam">· databases</span></h3>
+        <span class="tag recog">Recognize</span>
+        <p>Not a "programming" language — a <b>question language for databases</b>. "Give me all clients where spend &gt; X." Worth recognizing; it reads almost like English.</p>
+      </div>
+      <div class="lang">
+        <h3>HTML &amp; CSS <span class="fam">· structure &amp; style</span></h3>
+        <span class="tag recog">Recognize</span>
+        <p>HTML is the <b>skeleton</b> of a web page, CSS is the <b>paint</b>. Not logic — layout. You'll see them constantly; you don't need to write them.</p>
+      </div>
+      <div class="lang">
+        <h3>JSON &amp; YAML <span class="fam">· data &amp; config</span></h3>
+        <span class="tag recog">Recognize</span>
+        <p>Not code — <b>the format data travels in</b>. Every API answer, every settings file. Once you can read JSON, half of "technical" stops being scary.</p>
+      </div>
+      <div class="lang">
+        <h3>Swift · Kotlin <span class="fam">· mobile apps</span></h3>
+        <span class="tag skip">Skip</span>
+        <p>iPhone (Swift) and Android (Kotlin) apps. Not part of your AI-automation world. <b>Ignore unless you build a mobile app.</b></p>
+      </div>
+      <div class="lang">
+        <h3>C · C++ · Rust · Go <span class="fam">· systems &amp; speed</span></h3>
+        <span class="tag skip">Skip</span>
+        <p>Operating systems, games, high-performance engines. Powerful, slow to learn, <b>zero relevance to directing an AI service.</b> Know the names, move on.</p>
+      </div>
+      <div class="lang">
+        <h3>Java · PHP · Ruby · C# <span class="fam">· older business backends</span></h3>
+        <span class="tag skip">Skip</span>
+        <p>Run huge parts of the corporate web. Fine languages — just not yours. If a vendor mentions them, now you know where they sit.</p>
+      </div>
+    </div>
+
+    <p class="mapnote"><b>The one thing to remember:</b> languages split by <b>job</b>, not by "good vs bad."
+      Python = automation &amp; AI (yours). JavaScript = anything in a browser (your dashboards).
+      Everything else is someone else's job to worry about.</p>
+  </section>
+
+  <!-- ============ WHY PYTHON ============ -->
+  <section id="why">
+    <p class="eyebrow">Part 2 · The pick</p>
+    <h2>Why Python is your one language</h2>
+    <p class="sub">You direct an AI-automation team. Every automation follows the same shape —
+      pull data, hand it to an AI, do something with the answer — and Python is the language
+      that shape is written in. Learn to <b>read</b> Python and you can follow 90% of what your team ships.
+      A little JavaScript literacy on top lets you follow the dashboard side. That's the whole curriculum.</p>
+  </section>
+
+  <!-- ============ 7 DAY SPRINT ============ -->
+  <section id="sprint">
+    <p class="eyebrow">Part 3 · The sprint</p>
+    <h2>Seven days, look-and-do</h2>
+    <p class="sub">Each day: one idea, one thing you actually do, one code sample to read, and a thought to chew on while driving.
+      Check a day off when the "do this" is done. Your progress saves automatically on this device.</p>
+
+    <div class="days" id="days">
+
+      <article class="day" data-day="1">
+        <div class="dayhead">
+          <span class="checkbox"><svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg></span>
+          <div style="flex:1">
+            <p class="dnum">Day 1</p>
+            <h3 class="dtitle">The shape of code</h3>
+          </div>
+          <span class="dtime">~15 min</span>
+        </div>
+        <div class="dbody">
+          <p class="grasp"><b>Grasp this:</b> every program, no matter how scary it looks, does three things in order —
+            <b>get something in → do something to it → send something out.</b> That's it. Find those three parts and the fear drops.</p>
+          <pre><span class="c"># get something in</span>
+clients = read_sheet(<span class="s">"active_clients"</span>)
+
+<span class="c"># do something to it</span>
+at_risk = [c <span class="k">for</span> c <span class="k">in</span> clients <span class="k">if</span> c.spend &lt; c.target]
+
+<span class="c"># send something out</span>
+send_alert(at_risk)</pre>
+          <div class="do"><span class="lbl">Do this now</span>
+            Open any one script your team or an AI agent wrote. Don't try to understand every line —
+            just find the <b>in</b>, the <b>do</b>, and the <b>out</b>. Say each one out loud.</div>
+          <p class="drive"><span class="ic">🚗</span><span><b>While driving:</b> think of one automation you use daily. What goes <em>in</em>, what comes <em>out</em>? You just described its code.</span></p>
+        </div>
+      </article>
+
+      <article class="day" data-day="2">
+        <div class="dayhead">
+          <span class="checkbox"><svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg></span>
+          <div style="flex:1">
+            <p class="dnum">Day 2</p>
+            <h3 class="dtitle">The nouns — variables &amp; data</h3>
+          </div>
+          <span class="dtime">~15 min</span>
+        </div>
+        <div class="dbody">
+          <p class="grasp"><b>Grasp this:</b> a <b>variable</b> is just a labelled box holding a value. The main kinds:
+            <b>text</b> ("Acme Co"), <b>numbers</b> (500000), <b>lists</b> [a, b, c], and <b>dictionaries</b> — labelled pairs, like a mini record.</p>
+          <pre>client   = <span class="s">"Acme Co"</span>      <span class="c"># text (a string)</span>
+budget   = <span class="an">500000</span>         <span class="c"># number</span>
+channels = [<span class="s">"Meta"</span>, <span class="s">"Google"</span>]  <span class="c"># list</span>
+report   = { <span class="s">"leads"</span>: <span class="an">120</span>, <span class="s">"sales"</span>: <span class="an">45</span> }  <span class="c"># dictionary</span></pre>
+          <div class="do"><span class="lbl">Do this now</span>
+            In a real script, point at 5 variables. For each, say: <b>text, number, list, or dictionary?</b> That's the whole skill.</div>
+          <p class="drive"><span class="ic">🚗</span><span><b>While driving:</b> a client record — name, budget, list of channels — is text + number + list living together. That's a "dictionary." You already think in them.</span></p>
+        </div>
+      </article>
+
+      <article class="day" data-day="3">
+        <div class="dayhead">
+          <span class="checkbox"><svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg></span>
+          <div style="flex:1">
+            <p class="dnum">Day 3</p>
+            <h3 class="dtitle">The verbs — logic &amp; loops</h3>
+          </div>
+          <span class="dtime">~20 min</span>
+        </div>
+        <div class="dbody">
+          <p class="grasp"><b>Grasp this:</b> code makes decisions with <b>if / else</b> ("if spend is low, alert") and repeats work with a
+            <b>loop</b> ("for each client, check…"). A <b>function</b> is a named recipe you can reuse. Three ideas, and you can read logic.</p>
+          <pre><span class="k">def</span> <span class="an">check_client</span>(client):      <span class="c"># a reusable recipe</span>
+    <span class="k">if</span> client.spend &lt; client.target:
+        <span class="k">return</span> <span class="s">"at risk"</span>
+    <span class="k">else</span>:
+        <span class="k">return</span> <span class="s">"healthy"</span>
+
+<span class="k">for</span> c <span class="k">in</span> clients:          <span class="c"># repeat for every client</span>
+    print(c.name, <span class="an">check_client</span>(c))</pre>
+          <div class="do"><span class="lbl">Do this now</span>
+            Find one <b>if/else</b> and one <b>loop</b> in a real script. Read the condition out loud in plain English:
+            "if _____, then _____." If you can do that, you can review logic.</div>
+          <p class="drive"><span class="ic">🚗</span><span><b>While driving:</b> "for every red light, stop" is a loop with an if. Code borrowed your everyday logic — it just spells it out.</span></p>
+        </div>
+      </article>
+
+      <article class="day" data-day="4">
+        <div class="dayhead">
+          <span class="checkbox"><svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg></span>
+          <div style="flex:1">
+            <p class="dnum">Day 4</p>
+            <h3 class="dtitle">The pipes — APIs &amp; secrets</h3>
+          </div>
+          <span class="dtime">~20 min</span>
+        </div>
+        <div class="dbody">
+          <p class="grasp"><b>Grasp this:</b> an <b>API</b> is how one program asks another for data —
+            "Meta, give me yesterday's spend." The answer comes back as <b>JSON</b>. Access needs an
+            <b>API key</b> (a password) — and keys must <em>never</em> sit in the code. Remember that last part; it's your #1 review flag.</p>
+          <pre>key = os.environ[<span class="s">"META_API_KEY"</span>]   <span class="c"># ✓ key from a safe vault</span>
+data = requests.get(<span class="s">"https://api.meta.com/spend"</span>,
+                    headers={<span class="s">"auth"</span>: key})
+spend = data.json()[<span class="s">"total"</span>]        <span class="c"># read the JSON answer</span></pre>
+          <div class="do"><span class="lbl">Do this now</span>
+            Find one API call in your codebase (search for <b>requests</b>, <b>fetch</b>, or <b>http</b>).
+            Spot the <b>URL</b> (who it's asking) and the <b>key</b> (how it's allowed). Then check: is that key hidden, or sitting in plain text?</div>
+          <p class="drive"><span class="ic">🚗</span><span><b>While driving:</b> an API is a drive-through. You ask through the speaker (URL), show your card (key), get your order (JSON). Simple as that.</span></p>
+        </div>
+      </article>
+
+      <article class="day" data-day="5">
+        <div class="dayhead">
+          <span class="checkbox"><svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg></span>
+          <div style="flex:1">
+            <p class="dnum">Day 5</p>
+            <h3 class="dtitle">The AI-automation shape</h3>
+          </div>
+          <span class="dtime">~15 min</span>
+        </div>
+        <div class="dbody">
+          <p class="grasp"><b>Grasp this:</b> almost every AI automation you own is the <em>same five steps</em> —
+            <b>get data → build a prompt → ask the AI → read the answer → store or send it.</b>
+            Once you see this shape, you understand your own service from the inside.</p>
+          <pre>data   = read_sheet(<span class="s">"client_spend"</span>)         <span class="c"># 1 get data</span>
+prompt = <span class="s">f"Summarize this for the client: {data}"</span> <span class="c"># 2 build prompt</span>
+answer = ai.ask(prompt)                    <span class="c"># 3 ask the AI</span>
+text   = answer.content                     <span class="c"># 4 read the answer</span>
+send_email(text)                            <span class="c"># 5 send it</span></pre>
+          <div class="do"><span class="lbl">Do this now</span>
+            Take one Salmon automation and map it onto these five steps out loud. Where does its data come from?
+            What does it ask the AI? Where does the answer go? <b>That's an architecture review.</b></div>
+          <p class="drive"><span class="ic">🚗</span><span><b>While driving:</b> your morning brief = read calendar/email → ask AI to summarize → send to you. Five steps. You've been running this shape all along.</span></p>
+        </div>
+      </article>
+
+      <article class="day" data-day="6">
+        <div class="dayhead">
+          <span class="checkbox"><svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg></span>
+          <div style="flex:1">
+            <p class="dnum">Day 6</p>
+            <h3 class="dtitle">The reviewer's eye</h3>
+          </div>
+          <span class="dtime">~20 min</span>
+        </div>
+        <div class="dbody">
+          <p class="grasp"><b>Grasp this:</b> you don't judge if a line is "correct" — you judge whether the code is
+            <b>safe, clear, and maintainable.</b> Five things a good reviewer looks for, no coding required.
+            Use the cheat sheet below on real code.</p>
+          <div class="do"><span class="lbl">Do this now</span>
+            Take one real script and run the <b>Reviewer's cheat sheet</b> (next section) against it.
+            Write down 3 things you'd flag. You're now reviewing — not reading.</div>
+          <p class="drive"><span class="ic">🚗</span><span><b>While driving:</b> reviewing code is like reviewing a media plan — you're not redoing the math, you're asking "is this safe, clear, and will it hold up?"</span></p>
+        </div>
+      </article>
+
+      <article class="day" data-day="7">
+        <div class="dayhead">
+          <span class="checkbox"><svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg></span>
+          <div style="flex:1">
+            <p class="dnum">Day 7</p>
+            <h3 class="dtitle">Give real feedback</h3>
+          </div>
+          <span class="dtime">~25 min</span>
+        </div>
+        <div class="dbody">
+          <p class="grasp"><b>Grasp this:</b> the payoff. You read a real piece of code, form your own opinion,
+            then pressure-test it against a second opinion (me). When your instinct matches, you've arrived.</p>
+          <div class="do"><span class="lbl">Do this now</span>
+            Pick a real script or pull request. Write 3 review comments in your own words.
+            Then paste it to Claude with <b>"grade this code and tell me what you'd flag"</b> and compare.
+            Where you agreed, that's your new skill. Where you missed, that's tomorrow's lesson.</div>
+          <p class="drive"><span class="ic">🚗</span><span><b>While driving:</b> you already do this with decks and pitches — read, judge, give sharp notes. Code is just a new medium for the same instinct.</span></p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ CHEAT SHEET ============ -->
+  <section id="cheat">
+    <p class="eyebrow">Part 4 · Keep this open</p>
+    <h2>The reviewer's cheat sheet</h2>
+    <p class="sub">Six questions that make your feedback land — and make your dev team take you seriously.
+      No syntax knowledge needed. Ordered by how much they matter.</p>
+    <div class="cheat">
+      <div class="q"><span class="sev s1">Critical</span><span class="txt"><b>"Any secrets in the code?"</b>
+        <span>API keys, passwords, tokens should live in a vault (env variables) — never typed into the file. This is the #1 thing that gets companies hacked.</span></span></div>
+      <div class="q"><span class="sev s1">Critical</span><span class="txt"><b>"What happens when this fails?"</b>
+        <span>If the API is down or data is missing — does it crash loudly, or fail silently and send bad numbers? Silent failure is worse.</span></span></div>
+      <div class="q"><span class="sev s2">High</span><span class="txt"><b>"Is this hardcoded?"</b>
+        <span>A budget or date typed straight into the code means editing code to change it. Ask if it should be a setting instead.</span></span></div>
+      <div class="q"><span class="sev s2">High</span><span class="txt"><b>"Is this duplicated anywhere?"</b>
+        <span>The same block copy-pasted in five places means five places to fix later. "Can this be one reusable function?"</span></span></div>
+      <div class="q"><span class="sev s3">Worth asking</span><span class="txt"><b>"Will it hold at 10× the data?"</b>
+        <span>Fine for 10 clients — what about 500? Cheap to ask now, expensive to discover in production.</span></span></div>
+      <div class="q"><span class="sev s3">Worth asking</span><span class="txt"><b>"Will someone understand this in 6 months?"</b>
+        <span>Clear names, a comment on the tricky part. If <em>you</em> can't follow it, that's legitimate feedback — not your ignorance.</span></span></div>
+    </div>
+  </section>
+
+  <!-- ============ TUTOR PROMPTS ============ -->
+  <section id="tutor">
+    <p class="eyebrow">Part 5 · Your cheat code</p>
+    <h2>Turn Claude into your private tutor</h2>
+    <p class="sub">You have a coding teacher on call 24/7 — me. You'll learn 3× faster from <b>your own real code</b>
+      than any course. Copy any of these, paste it with a script, and go.</p>
+    <div class="prompts">
+      <div class="prompt">
+        <div class="ph"><span>Plain-English walkthrough</span><button class="copybtn" data-copy="Explain this code to me in plain English, line by line, like I'm a smart CEO who doesn't code. Tell me what goes in, what it does, and what comes out.">Copy</button></div>
+        <code>Explain this code to me in plain English, line by line, like I'm a smart CEO who doesn't code. Tell me what goes in, what it does, and what comes out.</code>
+      </div>
+      <div class="prompt">
+        <div class="ph"><span>Grade &amp; flag</span><button class="copybtn" data-copy="Grade this code A–F and tell me what a good reviewer would flag: secrets, silent failures, hardcoding, duplication, scale, readability. Be specific.">Copy</button></div>
+        <code>Grade this code A–F and tell me what a good reviewer would flag: secrets, silent failures, hardcoding, duplication, scale, readability. Be specific.</code>
+      </div>
+      <div class="prompt">
+        <div class="ph"><span>Check my instinct</span><button class="copybtn" data-copy="Here's a script and here are the 3 things I'd flag as a reviewer: [your notes]. Are my flags sharp? What did I miss, and what did I get wrong?">Copy</button></div>
+        <code>Here's a script and here are the 3 things I'd flag as a reviewer: [your notes]. Are my flags sharp? What did I miss, and what did I get wrong?</code>
+      </div>
+      <div class="prompt">
+        <div class="ph"><span>What could go wrong</span><button class="copybtn" data-copy="Walk me through everything that could go wrong when this code runs — bad input, API down, missing data. For each, does the code handle it or break?">Copy</button></div>
+        <code>Walk me through everything that could go wrong when this code runs — bad input, API down, missing data. For each, does the code handle it or break?</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DRIVING / AUDIO ============ -->
+  <section id="drive">
+    <p class="eyebrow">Part 6 · Learn while driving</p>
+    <h2>Ears-only mode</h2>
+    <div class="audio">
+      <p style="margin:0;font-size:.94rem;color:var(--muted)">You don't need a screen to keep learning. For the car:</p>
+      <ul>
+        <li><b>CodeNewbie</b> — podcast, non-coders learning to code. Start with any "what is an API / what is a variable" episode.</li>
+        <li><b>Lex Fridman / "how software works"</b> explainer episodes — big-picture, listenable, zero screen needed.</li>
+        <li><b>The "while driving" line on each day above</b> — one idea to turn over in your head per commute. Seven days, seven drives.</li>
+      </ul>
+      <p class="mp3note"><b>Your custom voice note:</b> I'm generating an MP3 of this whole foundation — the map + the mindset —
+        in a warm narrator voice, dropped into your <b>Voice Summaries</b> Drive folder. Play it on the way to the office and the whole picture lands before you even open a laptop.</p>
+    </div>
+  </section>
+
+  <footer>
+    Built for P'Oh · Next Rocket · read &amp; direct, don't build<br>
+    Progress saves on this device · pace: one day per day, done in a week
+  </footer>
+
+</div>
+
+<script>
+  (function () {
+    "use strict";
+    var KEY = "codeguide_days_v1";
+    var days = document.querySelectorAll(".day");
+    var doneN = document.getElementById("doneN");
+    var barFill = document.getElementById("barFill");
+    var trackNote = document.getElementById("trackNote");
+    var total = days.length;
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
+      catch (e) { return {}; }
+    }
+    function save(state) {
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    }
+    var state = load();
+
+    function render() {
+      var n = 0;
+      days.forEach(function (d) {
+        var id = d.getAttribute("data-day");
+        if (state[id]) { d.classList.add("done"); n++; }
+        else { d.classList.remove("done"); }
+      });
+      doneN.textContent = n;
+      barFill.style.width = (n / total * 100) + "%";
+      if (n === 0) trackNote.textContent = "tap a day to check it off →";
+      else if (n === total) trackNote.textContent = "★ you can read code now. go review something real.";
+      else trackNote.textContent = (total - n) + " to go — keep the streak";
+    }
+
+    days.forEach(function (d) {
+      var head = d.querySelector(".dayhead");
+      head.setAttribute("tabindex", "0");
+      head.setAttribute("role", "button");
+      function toggle() {
+        var id = d.getAttribute("data-day");
+        state[id] = !state[id];
+        save(state);
+        render();
+      }
+      head.addEventListener("click", toggle);
+      head.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+      });
+    });
+    render();
+
+    // copy buttons
+    document.querySelectorAll(".copybtn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var txt = btn.getAttribute("data-copy");
+        navigator.clipboard.writeText(txt).then(function () {
+          var old = btn.textContent;
+          btn.textContent = "Copied ✓";
+          setTimeout(function () { btn.textContent = old; }, 1400);
+        }).catch(function () {
+          btn.textContent = "Copy failed";
+        });
+      });
+    });
+
+    // theme toggle
+    var root = document.documentElement;
+    var tbtn = document.getElementById("themeToggle");
+    tbtn.addEventListener("click", function () {
+      var cur = root.getAttribute("data-theme");
+      var isDark = cur ? cur === "dark"
+        : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.setAttribute("data-theme", isDark ? "light" : "dark");
+    });
+  })();
+</script>
