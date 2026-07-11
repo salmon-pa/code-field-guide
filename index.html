@@ -255,6 +255,19 @@
     background: var(--card); border: 1px solid var(--line); border-radius: 14px;
     padding: 20px 22px; box-shadow: var(--shadow); display: grid; gap: 12px;
   }
+  .player {
+    background: var(--paper-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; display: grid; gap: 12px;
+  }
+  .player-head { display: flex; align-items: center; gap: 14px; }
+  .player-ic {
+    font-size: 1.5rem; width: 46px; height: 46px; flex: none; border-radius: 12px;
+    display: grid; place-items: center; background: var(--accent-soft);
+    border: 1px solid var(--accent);
+  }
+  .player-title { font-family: var(--mono); font-weight: 600; font-size: .98rem; margin: 0; }
+  .player-sub { font-size: .8rem; color: var(--muted); margin: 2px 0 0; }
+  .player audio { width: 100%; height: 40px; }
   .audio ul { margin: 0; padding-left: 18px; display: grid; gap: 7px; font-size: .92rem; }
   .audio ul b { font-family: var(--mono); color: var(--text); }
   .audio .mp3note {
@@ -600,14 +613,27 @@ send_email(text)                            <span class="c"># 5 send it</span></
     <p class="eyebrow">Part 6 · Learn while driving</p>
     <h2>Ears-only mode</h2>
     <div class="audio">
-      <p style="margin:0;font-size:.94rem;color:var(--muted)">You don't need a screen to keep learning. For the car:</p>
+      <div class="player">
+        <div class="player-head">
+          <span class="player-ic">🎧</span>
+          <div>
+            <p class="player-title">The whole foundation, narrated</p>
+            <p class="player-sub">~5.5 min · English · press play and drive</p>
+          </div>
+        </div>
+        <audio controls preload="none" src="coding-foundation.mp3">
+          Your browser can't play audio — <a href="coding-foundation.mp3">download the MP3</a>.
+        </audio>
+      </div>
+      <p style="margin:0;font-size:.94rem;color:var(--muted)">Want more for the car? A few listens:</p>
       <ul>
         <li><b>CodeNewbie</b> — podcast, non-coders learning to code. Start with any "what is an API / what is a variable" episode.</li>
         <li><b>Lex Fridman / "how software works"</b> explainer episodes — big-picture, listenable, zero screen needed.</li>
         <li><b>The "while driving" line on each day above</b> — one idea to turn over in your head per commute. Seven days, seven drives.</li>
       </ul>
-      <p class="mp3note"><b>Your custom voice note:</b> I'm generating an MP3 of this whole foundation — the map + the mindset —
-        in a warm narrator voice, dropped into your <b>Voice Summaries</b> Drive folder. Play it on the way to the office and the whole picture lands before you even open a laptop.</p>
+      <p class="mp3note"><b>The player above</b> is your whole foundation — the map + the mindset — in a warm narrator voice.
+        Hit play on your phone on the way to the office and the whole picture lands before you even open a laptop.
+        A copy also sits in your <b>Voice Summaries</b> Drive folder.</p>
     </div>
   </section>
 
